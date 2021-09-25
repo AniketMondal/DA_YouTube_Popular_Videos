@@ -199,4 +199,6 @@ Converted from: ***Topics_Links :arrow_right: Topics***
 
 The API response contains the **Links** of wikipedia pages for specific topics. The name of the topic has been extracted from the **Topics_Llinks** and joined into a comma seperated string for easier insertion into database
 
+**[Go back][a]**:top:
+
 ### Entry_Timestamp
