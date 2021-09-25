@@ -30,16 +30,20 @@ This analysis may help anyone strategize their YouTube journey by understanding
 - [Understanding YouTube Data API v3](#understanding-youtube-data-api-v3)
 - [Storing all credentials as Environment Variables](#storing-all-credentials-as-environment-variables)
 - [Data Transformation for efficient memory usage](#data-transformation-for-efficient-memory-usage)
-    - [Transformed Columns](#transformed-columns)
-        - [](#)
-        - [](#)
-        - [](#)
-        - [](#)
 - [Method used to efficiently load data into Database](#method-used-to-efficiently-load-data-into-database)
 - [Interacting with Database](#interacting-with-database)
 - [Closing Database Connections](#closing-database-connections)
-- [](#)
-- [](#)
+- [Transformed/Generated Columns](#transformedgenerated-columns)
+    1. [Rank](#1-rank)
+    2. [(Title/Audio)_Language_Name](#2-titleaudiolanguagename)
+    3. [Topics](#3-topics)
+    4. [Entry_Timestamp](#4-entrytimestamp)
+    5. [video_type](#5-videotype)
+    6. [duration_tag](#6-durationtag)
+    7. [local_publish_time](#7-localpublishtime)
+- [Inference, Hypothesis, Validation from Analysis](#inference-hypothesis-validation-from-analysis)
+- [Abbreviations Used](#abbreviations-used)
+- [Acknowledgement](#acknowledgement)
 
 ## Some Vizualizations
 
@@ -182,11 +186,16 @@ It is important to close `cursor()`s after completing interactions with the data
 
 **[Go back :top:][a]**
 
-## Transformed Columns
+## Transformed/Generated Columns
 
-Here are the description of few DataFrame columns transformed from the raw data.
+Here are the description of few columns transformed from the raw data and generated at different stages of data pipeline.
 
-### (Title/Audio)_Language_Name
+### 1. Rank
+The index of a video in the response of each API call, starting from 1. As I have collected 100 videos each time, the Rank is in the range **1-100**.
+
+**[Go back :top:][a]**
+
+### 2. (Title/Audio)_Language_Name
 Obtained by matching language codes from the API response data of YouTube's **[I18nLanguages](https://developers.google.com/youtube/v3/docs/i18nLanguages)**. In some cases, the code provided by the owner is **not listed** in the API response though the code is valid. But as we are specifically analyzing YouTube related data, 
 it has not been decoded going outside the defined scope.
 
@@ -194,11 +203,94 @@ Now for all such cases ( *e.g. bihari dialects, explicitely mentioned **zxx*** )
 
 **[Go back :top:][a]**
 
-### Topics
+### 3. Topics
 Converted from: ***Topics_Links :arrow_right: Topics***
 
 The API response contains the **Links** of wikipedia pages for specific topics. The name of the topic has been extracted from the **Topics_Llinks** and joined into a comma seperated string for easier insertion into database
 
-**[Go back][a]**:top:
+**[Go back :top:][a]**
 
-### Entry_Timestamp
+### 4. Entry_Timestamp
+This is the timestamp of data collection in **UTC** time. `pandas.Timestamp.utcnow()` is executed in the same code cell where the data is fetched by API. This is necessary as it becomes the part of the `Primary Key` in our database table along with another column; ***video_id*** to uniquely identify a popular video.
+
+**[Go back :top:][a]**
+
+### 5. video_type
+Inferred from: ***live_start_real, live_start_scheduled :arrow_right: video_type***
+
+This is the category assignment based on whether a video is/is going to be a **Live Streamed** content or a normal **Uploaded/Posted** video.
+
+**[Go back :top:][a]**
+
+### 6. duration_tag
+Inferred from: *** duration :arrow_right: duration_sec :arrow_right: duration_tag***
+
+As we can see from the histogram of the duration_sec distribution, it is extreme positively skewed. So to better understand trends, this category is generated. It categorizes each video into **3** categories, namely ***Shorts, Normal, Long***. Though `YouTube Shorts` is well defined but the other 2 are not. The limiting duration is entirely based on our own experience of what the average is.
+
+This enables us to analyze the newly added YouTube feature, `#SHORTS`.
+
+**[Go back :top:][a]**
+
+### 7. local_publish_time
+Converted from: ***maximum ( published_at, live_start_scheduled, live_start_real ) :arrow_right: local_publish_time***
+
+It is the ***UTC*** timestamp converted to ***local*** timestamp. This helps us to understand the *peak hour* of publishing new videos on YouTube that become popular. It indicates the characteristics of content creators, their preferred time to upload new contents, etc.
+
+**[Go back :top:][a]**
+
+## Inference, Hypothesis, Validation from Analysis
+
+In the [Notebook 2][c], under the section
+[Performing Data Analysis & Visualization](https://nbviewer.jupyter.org/github/AniketMondal/DA_YouTube_Popular_Videos/blob/master/YouTube_Popular_Videos_Analysis_2.ipynb#3.-Performing-Data-Analysis-&-Visualization.),
+all the inferences are provided as `markdown` cells. Similarly, some hypothesis is proposed and I have validated the hypothesis. All related details are provided right after the analysis in the *Notebook* itself. Please check those out following the above link or simply navigating to the [Notebook 2][c].
+
+Few propositions include,
+- no. of likes in a video is ~ 5% of its views
+- no. of dislikes is ~ 5% of its likes
+- etc.
+
+**[Go back :top:][a]**
+
+## Abbreviations Used
+
+Following are the abbreviations used in this Project.
+
+| Short Form | Meaning |
+|   :---:    | :---: |
+| doc | Documentation |
+| enum | Enumerate (Categorical) |
+| GCP | Google Cloud Platform |
+| Shorts | YouTube Shorts |
+| Stats | Statistics |
+| VM | Virtual Machine |
+| UTC | Coordinated Universal Time |
+| `zxx` | No linguistic content, Not applicable |
+
+**[Go back :top:][a]**
+
+## Acknowledgement
+
+- [:tv: The One and Only Data Science Project You Need](https://www.youtube.com/watch?v=c4Af2FcgamA) by *[Nate at StrataScratch](https://www.youtube.com/channel/UCW8Ews7tdKKkBT6GdtQaXvQ)*
+- [:tv: Data School](https://www.youtube.com/c/dataschool)
+- [:tv: Kimberly Fessel](https://www.youtube.com/channel/UCirb0k3PnuQnRjh8tTJHJuA)
+- [:tv: AWS vs Azure vs GCP](https://www.youtube.com/watch?v=n24OBVGHufQ) by *[Intellipaat](https://www.youtube.com/channel/UCCktnahuRFYIBtN)*
+- [:tv: An Introduction to GCP for Students](https://www.youtube.com/watch?v=JtUIQz_EkUw) by *[Google Cloud Tech](https://www.youtube.com/channel/UCJS9pqu9BzkAMNTmzNMNhvg)*
+- [:tv: The Google Cloud Platform Free Trial and Free Tier](https://www.youtube.com/watch?v=P2ADJdk5mYo) by *[Google Cloud Tech](https://www.youtube.com/channel/UCJS9pqu9BzkAMNTmzNMNhvg)*
+- [:tv: Deploying Free Tier (Always Free) VM in Google Cloud Platform - Snapshots, VPC Firewall and more](https://www.youtube.com/watch?v=fMqFxV_0-DQ) by *[Brian V](https://www.youtube.com/channel/UCK9irvCYv9JOAF4U3l228aQ)*
+
+- [:memo: Pandas to PostgreSQL using Psycopg2: Bulk Insert Performance Benchmark](https://naysan.ca/2020/05/09/pandas-to-postgresql-using-psycopg2-bulk-insert-performance-benchmark/)
+by *[Naysan Saran](https://naysan.ca/)*
+- [:memo: Fastest Way to Load Data Into PostgreSQL Using Python, From two minutes to less than half a second!](https://hakibenita.com/fast-load-data-python-postgresql) by *[Haki Benita](https://hakibenita.com/)*
+
+- [:file_folder: python-dotenv](https://github.com/theskumar/python-dotenv)
+- [:file_folder: emoji-cheat-sheet](https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
+
+- [:notebook_with_decorative_cover: `Pandas` Documentation](https://pandas.pydata.org/docs/)
+- [:notebook_with_decorative_cover:	`Psycopg2` Documentation](https://www.psycopg.org/docs/)
+- [:notebook_with_decorative_cover:	`PostgreSQL` Documentation](https://www.postgresql.org/docs/current/)
+- [:notebook_with_decorative_cover:	`Seaborn` Documentation](https://seaborn.pydata.org/tutorial.html)
+- [:notebook_with_decorative_cover:	`Matplotlib` Documentation](https://matplotlib.org/stable/contents.html)
+
+...and there are many more :slightly_smiling_face:	
+
+**[Go back :top:][a]**
