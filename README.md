@@ -1,9 +1,9 @@
-[a]:#top
+[a]:#logo-youtube-popular-videos-analysis-barchart
 [b]:YouTube_Popular_Videos_Analysis_1.ipynb
 [c]:YouTube_Popular_Videos_Analysis_2.ipynb
 
 
-<img src="youtube.png" alt="LOGO" style="vertical-align:middle"> <h1>YouTube Popular Videos Analysis</h1>
+# ![logo](youtube.png) YouTube Popular Videos Analysis :bar_chart:
 
 This project tries to extract insights and patterns of YouTube's current most popular videos of a specific region (Country; here INDIA). 
 Over **20** important attributes of each video is analyzed using **Pandas, NumPy,** etc. and insights are presented in vizualizations
