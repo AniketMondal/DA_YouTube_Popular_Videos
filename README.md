@@ -1,4 +1,4 @@
-[a]:#logo-youtube-popular-videos-analysis-barchart
+[a]:#logo-youtube-popular-videos-analysis-bar_chart
 [b]:YouTube_Popular_Videos_Analysis_1.ipynb
 [c]:YouTube_Popular_Videos_Analysis_2.ipynb
 
