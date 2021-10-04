@@ -213,6 +213,3 @@ except (Exception, spg.DatabaseError) as error:
 
 cursor.close()
 connection.close()
-
-
-
