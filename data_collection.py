@@ -36,7 +36,7 @@ url1 = ("https://youtube.googleapis.com/youtube/v3/videos?"
 )
 
 current_timestamp = pd.Timestamp.utcnow()
-print(f"Execution Logs At {current_timestamp}:-")
+print(f"\nExecution Logs At {current_timestamp}:-")
 
 try:
     r1 = requests.get(url1)
@@ -241,7 +241,7 @@ else:
                         print(f"Following error(s) occured during loading data into database table:\n{e}")
                         cursor.execute("ROLLBACK")
                     else:
-                        print("Everything was executed normally!!\n")
+                        print("Everything was executed normally!! :D")
 
                 cursor.close()
                 connection.close()
