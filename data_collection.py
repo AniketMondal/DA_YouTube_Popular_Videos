@@ -36,20 +36,38 @@ url1 = ("https://youtube.googleapis.com/youtube/v3/videos?"
 )
 
 current_timestamp = pd.Timestamp.utcnow()
-print(f"At {current_timestamp}:-")
+print(f"Execution Logs At {current_timestamp}:-")
 
 try:
-    data1 = requests.get(url1).json()
+    r1 = requests.get(url1)
+    r1.raise_for_status()
+except requests.HTTPError as e:
+    e = str(e).split(": ")
+    print(f"Following error(s) occurred while calling 1st page of the API:\nHTTP error-code {e[0]} : {e[1]}")
+except requests.ConnectionError:
+    print("Following error(s) occurred while calling 1st page of the API:\nConnection Error (includes no internet, timeout, invalid url etc.)")
+except requests.RequestException:
+    print("Following error(s) occurred while calling 1st page of the API:\nThere was an ambiguous exception")
 except Exception as e:
     print(f"Following error(s) occurred while calling 1st page of the API:\n{e}")
 else:
+    data1 = r1.json()
     page2_token = data1["nextPageToken"]
     url2 = url1+"&pageToken="+page2_token
     try:
-        data2 = requests.get(url2).json()
+        r2 = requests.get(url2)
+        r2.raise_for_status()
+    except requests.HTTPError as e:
+        e = str(e).split(": ")
+        print(f"Following error(s) occurred while calling 2nd page of the API:\nHTTP error-code {e[0]} : {e[1]}")
+    except requests.ConnectionError:
+        print("Following error(s) occurred while calling 2nd page of the API:\nConnection Error (includes no internet, timeout, invalid url etc.)")
+    except requests.RequestException:
+        print("Following error(s) occurred while calling 2nd page of the API:\nThere was an ambiguous exception")
     except Exception as e:
         print(f"Following error(s) occurred while calling 2nd page of the API:\n{e}")
     else:
+        data2 = r2.json()
         data = data1["items"]+data2["items"]
         temp_df = pd.json_normalize(data)
 
@@ -118,10 +136,19 @@ else:
 
         lang_url = "https://youtube.googleapis.com/youtube/v3/i18nLanguages?part=snippet&prettyPrint=true&fields=items%2Fsnippet&key="+api_key
         try:
-            lang_data = requests.get(lang_url).json()
+            r_lang = requests.get(lang_url)
+            r_lang.raise_for_status()
+        except requests.HTTPError as e:
+            e = str(e).split(": ")
+            print(f"Following error(s) occurred while calling i18nLanguages API:\nHTTP error-code {e[0]} : {e[1]}")
+        except requests.ConnectionError:
+            print("Following error(s) occurred while calling i18nLanguages API:\nConnection Error (includes no internet, timeout, invalid url etc.)")
+        except requests.RequestException:
+            print("Following error(s) occurred while calling i18nLanguages API:\nThere was an ambiguous exception")
         except Exception as e:
             print(f"Following error(s) occurred while calling i18nLanguages API:\n{e}")
         else:
+            lang_data = r_lang.json()
             lang_df = pd.json_normalize(lang_data["items"])
             lang_df.columns = ["Language_Code","Language"]
             lang_df = lang_df.convert_dtypes()
